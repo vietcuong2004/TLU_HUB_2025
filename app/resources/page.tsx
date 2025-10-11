@@ -1,7 +1,9 @@
+import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Download, Eye } from "lucide-react"
 
@@ -15,6 +17,8 @@ const resources = [
     downloads: 1234,
     views: 5678,
     isFree: true,
+    date: "15-11-2024",
+    thumbnail: "/doc-tourism-thesis.jpg",
   },
   {
     id: 2,
@@ -25,6 +29,8 @@ const resources = [
     downloads: 987,
     views: 3456,
     isFree: true,
+    date: "12-11-2024",
+    thumbnail: "/doc-electrical-engineering.jpg",
   },
   {
     id: 3,
@@ -36,6 +42,8 @@ const resources = [
     views: 2345,
     isFree: false,
     price: "49.000đ",
+    date: "10-11-2024",
+    thumbnail: "/doc-pharmacy-quiz.jpg",
   },
   {
     id: 4,
@@ -47,6 +55,8 @@ const resources = [
     views: 4567,
     isFree: false,
     price: "99.000đ",
+    date: "08-11-2024",
+    thumbnail: "/doc-internship-report.jpg",
   },
 ]
 
@@ -57,7 +67,7 @@ export default function ResourcesPage() {
       <main className="flex-1">
         {/* Page Header */}
         <section className="border-b border-border bg-card py-12">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto max-w-7xl px-4">
             <h1 className="mb-4 text-balance text-4xl font-bold">Tài Liệu Học Tập</h1>
             <p className="text-pretty text-lg text-muted-foreground">
               Truy cập tài liệu học tập miễn phí và trả phí chất lượng cao
@@ -66,83 +76,134 @@ export default function ResourcesPage() {
         </section>
 
         {/* Resources Grid */}
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            <div className="mb-8 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Tài Liệu Miễn Phí</h2>
-            </div>
-            <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {resources
-                .filter((r) => r.isFree)
-                .map((resource) => (
-                  <Card key={resource.id} className="transition-all hover:shadow-lg">
-                    <CardHeader>
-                      <div className="mb-2 flex items-center justify-between">
-                        <Badge>{resource.type}</Badge>
-                        <Badge variant="outline">{resource.subject}</Badge>
-                      </div>
-                      <CardTitle className="line-clamp-2">{resource.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">{resource.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Download className="h-4 w-4" />
-                          <span>{resource.downloads}</span>
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto max-w-7xl px-4">
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Tài Liệu Miễn Phí</h2>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {resources
+                  .filter((r) => r.isFree)
+                  .map((resource) => (
+                    <Card
+                      key={resource.id}
+                      className="group hover:shadow-lg transition-all duration-300 border-gray-200 overflow-hidden"
+                    >
+                      <CardContent className="p-0">
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <Image
+                            src={resource.thumbnail || "/placeholder.svg"}
+                            alt={resource.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <Badge className="absolute top-3 left-3 bg-emerald-500 hover:bg-emerald-600 text-white border-0">
+                            {resource.date}
+                          </Badge>
+                          <div className="absolute top-3 right-3">
+                            <Badge variant="secondary">{resource.type}</Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          <span>{resource.views}</span>
+
+                        <div className="p-4">
+                          <Badge variant="outline" className="mb-2">
+                            {resource.subject}
+                          </Badge>
+                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3rem]">
+                            {resource.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{resource.description}</p>
+
+                          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                            <div className="flex items-center gap-1">
+                              <Download className="h-4 w-4" />
+                              <span>{resource.downloads}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-4 w-4" />
+                              <span>{resource.views}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Link href={`/documents/${resource.id}`} className="flex-1">
+                              <Button variant="outline" className="w-full bg-transparent">
+                                <Eye className="mr-2 h-4 w-4" />
+                                Xem
+                              </Button>
+                            </Link>
+                            <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                              <Download className="mr-2 h-4 w-4" />
+                              Tải về
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="gap-2">
-                      <Button className="flex-1 bg-transparent" variant="outline">
-                        <Eye className="mr-2 h-4 w-4" />
-                        Xem
-                      </Button>
-                      <Button className="flex-1">
-                        <Download className="mr-2 h-4 w-4" />
-                        Tải về
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
             </div>
 
-            <div className="mb-8 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Tài Liệu Trả Phí</h2>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {resources
-                .filter((r) => !r.isFree)
-                .map((resource) => (
-                  <Card key={resource.id} className="transition-all hover:shadow-lg">
-                    <CardHeader>
-                      <div className="mb-2 flex items-center justify-between">
-                        <Badge>{resource.type}</Badge>
-                        <span className="font-bold text-primary">{resource.price}</span>
-                      </div>
-                      <CardTitle className="line-clamp-2">{resource.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">{resource.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Download className="h-4 w-4" />
-                          <span>{resource.downloads}</span>
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Tài Liệu Trả Phí</h2>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {resources
+                  .filter((r) => !r.isFree)
+                  .map((resource) => (
+                    <Card
+                      key={resource.id}
+                      className="group hover:shadow-lg transition-all duration-300 border-gray-200 overflow-hidden"
+                    >
+                      <CardContent className="p-0">
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <Image
+                            src={resource.thumbnail || "/placeholder.svg"}
+                            alt={resource.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <Badge className="absolute top-3 left-3 bg-emerald-500 hover:bg-emerald-600 text-white border-0">
+                            {resource.date}
+                          </Badge>
+                          <div className="absolute top-3 right-3">
+                            <Badge variant="secondary">{resource.type}</Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          <span>{resource.views}</span>
+
+                        <div className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge variant="outline">{resource.subject}</Badge>
+                            <span className="font-bold text-blue-600">{resource.price}</span>
+                          </div>
+                          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3rem]">
+                            {resource.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{resource.description}</p>
+
+                          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                            <div className="flex items-center gap-1">
+                              <Download className="h-4 w-4" />
+                              <span>{resource.downloads}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-4 w-4" />
+                              <span>{resource.views}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Link href={`/documents/${resource.id}`} className="flex-1">
+                              <Button variant="outline" className="w-full bg-transparent">
+                                <Eye className="mr-2 h-4 w-4" />
+                                Xem
+                              </Button>
+                            </Link>
+                            <Button className="flex-1 bg-blue-600 hover:bg-blue-700">Mua Ngay</Button>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button className="w-full">Mua Ngay</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
             </div>
           </div>
         </section>
