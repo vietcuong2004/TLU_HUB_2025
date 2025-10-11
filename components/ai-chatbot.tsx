@@ -33,6 +33,7 @@ export function AIChatbot() {
   const [isTyping, setIsTyping] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const tooltipTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -41,6 +42,23 @@ export function AIChatbot() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    if (showTooltip) {
+      if (tooltipTimerRef.current) {
+        clearTimeout(tooltipTimerRef.current)
+      }
+      tooltipTimerRef.current = setTimeout(() => {
+        setShowTooltip(false)
+      }, 5000)
+    }
+
+    return () => {
+      if (tooltipTimerRef.current) {
+        clearTimeout(tooltipTimerRef.current)
+      }
+    }
+  }, [showTooltip])
 
   const handleSend = async (message?: string) => {
     const messageToSend = message || input
@@ -57,7 +75,6 @@ export function AIChatbot() {
     setInput("")
     setIsTyping(true)
 
-    // Simulate AI response
     setTimeout(() => {
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -96,6 +113,14 @@ export function AIChatbot() {
     return "Cảm ơn câu hỏi của bạn! Tôi có thể giúp bạn về: thông tin trường (ký túc xá, học bổng), tài liệu học tập, khóa học, hoặc liên hệ admin. Bạn có thể hỏi cụ thể hơn được không?"
   }
 
+  const handleOpenChat = () => {
+    setIsOpen(true)
+    setShowTooltip(false)
+    if (tooltipTimerRef.current) {
+      clearTimeout(tooltipTimerRef.current)
+    }
+  }
+
   return (
     <>
       {/* Chat Button */}
@@ -110,7 +135,7 @@ export function AIChatbot() {
           <Button
             size="lg"
             className="h-20 w-20 rounded-full shadow-lg transition-all hover:scale-110 p-3 overflow-hidden bg-blue-500"
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpenChat}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
           >
