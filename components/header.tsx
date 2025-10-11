@@ -4,10 +4,18 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Menu, X } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/"
+    return pathname.startsWith(path)
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -24,22 +32,59 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden items-center gap-6 md:flex">
-            <Link href="/" className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+            <Link
+              href="/"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/") && pathname === "/"
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
+            >
               Trang Chủ
             </Link>
-            <Link href="/courses" className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+            <Link
+              href="/courses"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/courses")
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
+            >
               Khóa Học
             </Link>
-            <Link href="/blog" className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+            <Link
+              href="/blog"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/blog")
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
+            >
               Blog
             </Link>
             <Link
               href="/resources"
-              className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/resources")
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
             >
               Tài Liệu
             </Link>
-            <Link href="/contact" className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+            <Link
+              href="/contact"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/contact")
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
+            >
               Liên Hệ
             </Link>
           </nav>
@@ -73,27 +118,48 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="border-t border-border py-4 md:hidden">
             <nav className="flex flex-col gap-4">
-              <Link href="/" className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+              <Link
+                href="/"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/") && pathname === "/" ? "text-primary font-semibold" : "text-foreground",
+                )}
+              >
                 Trang Chủ
               </Link>
               <Link
                 href="/courses"
-                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/courses") ? "text-primary font-semibold" : "text-foreground",
+                )}
               >
                 Khóa Học
               </Link>
-              <Link href="/blog" className="text-sm font-medium text-foreground transition-colors hover:text-primary">
+              <Link
+                href="/blog"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/blog") ? "text-primary font-semibold" : "text-foreground",
+                )}
+              >
                 Blog
               </Link>
               <Link
                 href="/resources"
-                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/resources") ? "text-primary font-semibold" : "text-foreground",
+                )}
               >
                 Tài Liệu
               </Link>
               <Link
                 href="/contact"
-                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/contact") ? "text-primary font-semibold" : "text-foreground",
+                )}
               >
                 Liên Hệ
               </Link>

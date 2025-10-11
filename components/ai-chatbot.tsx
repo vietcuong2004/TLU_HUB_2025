@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react"
+import { X, Send, Bot, User, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface Message {
   id: string
@@ -30,6 +31,7 @@ export function AIChatbot() {
   ])
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -98,13 +100,23 @@ export function AIChatbot() {
     <>
       {/* Chat Button */}
       {!isOpen && (
-        <Button
-          size="lg"
-          className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg transition-all hover:scale-110"
-          onClick={() => setIsOpen(true)}
-        >
-          <MessageCircle className="h-6 w-6" />
-        </Button>
+        <div className="fixed bottom-6 right-6 z-50">
+          {showTooltip && (
+            <div className="absolute bottom-full right-0 mb-2 w-64 rounded-lg bg-white p-3 shadow-lg border border-border animate-in fade-in slide-in-from-bottom-2">
+              <p className="text-sm text-foreground">Xin chào, tôi là TLU Assistant, tôi có thể giúp gì cho bạn?</p>
+              <div className="absolute bottom-0 right-6 h-0 w-0 translate-y-full border-8 border-transparent border-t-white"></div>
+            </div>
+          )}
+          <Button
+            size="lg"
+            className="h-20 w-20 rounded-full shadow-lg transition-all hover:scale-110 p-3 overflow-hidden bg-blue-500"
+            onClick={() => setIsOpen(true)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <Image src="/chatbot.png" alt="Chatbot" width={80} height={80} className="h-full w-full object-contain" />
+          </Button>
+        </div>
       )}
 
       {/* Chat Window */}
@@ -112,8 +124,14 @@ export function AIChatbot() {
         <Card className="fixed bottom-6 right-6 z-50 flex h-[600px] w-[400px] flex-col shadow-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border pb-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                <Bot className="h-5 w-5 text-primary-foreground" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 overflow-hidden p-2">
+                <Image
+                  src="/chatbot.png"
+                  alt="TLU Assistant"
+                  width={56}
+                  height={56}
+                  className="h-full w-full object-contain"
+                />
               </div>
               <div>
                 <CardTitle className="text-lg">TLU Assistant</CardTitle>
