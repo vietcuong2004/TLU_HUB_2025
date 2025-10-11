@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Share2, Eye, DownloadIcon } from "lucide-react"
+import { Download, Share2, Eye, DownloadIcon, Calendar, User, Star, Heart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -28,6 +28,8 @@ const document = {
   author: "TS. Nguyễn Văn A",
   views: 1250,
   downloads: 320,
+  rating: 4.5,
+  reviewCount: 48,
   thumbnail: "/doc-tourism-thesis.jpg",
 }
 
@@ -64,9 +66,68 @@ export default function DocumentDetailPage() {
       <Header />
       <main className="flex-1 bg-gray-50">
         <div className="container mx-auto max-w-7xl px-4 py-8">
+          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                <span>{document.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>{document.date}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                <span>{document.views}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <DownloadIcon className="w-4 h-4" />
+                <span>{document.downloads}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${
+                        i < Math.floor(document.rating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : i < document.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "fill-gray-200 text-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="font-medium text-gray-900">{document.rating}</span>
+                <span className="text-gray-500">({document.reviewCount} đánh giá)</span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column - Document Details */}
+            {/* Left Column - Document Preview & Details */}
             <div className="lg:col-span-2">
+              <Card className="mb-6">
+                <CardContent className="p-0">
+                  <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center">
+                        <Image
+                          src="/placeholder.svg?height=96&width=96"
+                          alt="Document preview"
+                          width={96}
+                          height={96}
+                          className="opacity-50"
+                        />
+                      </div>
+                      <p className="text-gray-500 text-sm">Xem trước tài liệu</p>
+                      <p className="text-gray-400 text-xs mt-1">Tải xuống để xem toàn bộ nội dung</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Tabs defaultValue="description" className="w-full">
                 <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
                   <TabsTrigger
@@ -190,16 +251,27 @@ export default function DocumentDetailPage() {
               <Card className="sticky top-4">
                 <CardContent className="p-6">
                   <div className="text-center mb-6">
-                    <div className="text-4xl font-bold text-blue-600 mb-1">{document.price}</div>
+                    <div className="text-4xl font-bold text-emerald-500 mb-1">{document.price}</div>
                     <p className="text-sm text-gray-500">Giá đã bao gồm VAT</p>
                   </div>
 
                   <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white mb-3 h-12">
                     <Download className="w-5 h-5 mr-2" />
-                    Tải Xuống
+                    Mua ngay
                   </Button>
 
-                  <Button variant="outline" className="w-full mb-6 h-12 bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="w-full mb-3 h-12 border-gray-300 hover:bg-gray-50 bg-transparent"
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    Thêm vào yêu thích
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full mb-6 h-12 border-gray-300 hover:bg-gray-50 bg-transparent"
+                  >
                     <Share2 className="w-5 h-5 mr-2" />
                     Chia sẻ
                   </Button>

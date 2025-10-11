@@ -41,7 +41,7 @@ const documents = [
 
 export function FeaturedDocuments() {
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-white to-blue-50/30">
+    <section className="py-16 lg:py-24 px-4 bg-gradient-to-b from-white to-blue-50/30">
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-center justify-between mb-8">
           <div>

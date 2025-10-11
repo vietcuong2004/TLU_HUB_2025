@@ -16,7 +16,7 @@ const categories = [
 export function CategoryGrid() {
   return (
     <section className="border-b border-border bg-background py-16 lg:py-24">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto max-w-7xl px-4">
         <div className="mb-12 flex items-center justify-between">
           <div>
             <h2 className="mb-2 text-3xl font-bold text-foreground lg:text-4xl">Danh Mục Hàng Đầu</h2>
