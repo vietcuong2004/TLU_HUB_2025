@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Download, Share2, Eye, DownloadIcon, Calendar, User, Star, Heart } from "lucide-react"
+import { Download, Share2, Eye, DownloadIcon, Calendar, User, Star, Heart, MessageSquare } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -32,6 +32,24 @@ const document = {
   reviewCount: 48,
   thumbnail: "/doc-tourism-thesis.jpg",
 }
+
+const reviews = [
+  {
+    id: 1,
+    author: "Nguyễn Văn B",
+    rating: 5,
+    comment: "Tài liệu rất hữu ích, giúp tôi hoàn thành bài tập lớn một cách dễ dàng. Nội dung chi tiết và dễ hiểu.",
+    date: "15/04/2024",
+  },
+  {
+    id: 2,
+    author: "Trần Thị C",
+    rating: 4,
+    comment:
+      "Nội dung khá đầy đủ, tuy nhiên có một số phần còn thiếu ví dụ minh họa cụ thể. Nhìn chung là tài liệu tốt.",
+    date: "02/05/2024",
+  },
+]
 
 const relatedDocuments = [
   {
@@ -173,22 +191,51 @@ export default function DocumentDetailPage() {
                 <TabsContent value="details" className="mt-6">
                   <Card>
                     <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="flex justify-between py-3 border-b">
-                          <span className="text-gray-600">Số trang:</span>
-                          <span className="font-semibold">{document.pages}</span>
+                      <div className="grid md:grid-cols-2 gap-8">
+                        {/* Left Column - Basic Info */}
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-4">Thông tin cơ bản</h4>
+                          <div className="space-y-3">
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Số trang:</span>
+                              <span className="font-semibold">{document.pages}</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Định dạng:</span>
+                              <span className="font-semibold">{document.format}</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Ngày đăng:</span>
+                              <span className="font-semibold">{document.date}</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Tác giả:</span>
+                              <span className="font-semibold">{document.author}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex justify-between py-3 border-b">
-                          <span className="text-gray-600">Định dạng:</span>
-                          <span className="font-semibold">{document.format}</span>
-                        </div>
-                        <div className="flex justify-between py-3 border-b">
-                          <span className="text-gray-600">Ngày đăng:</span>
-                          <span className="font-semibold">{document.date}</span>
-                        </div>
-                        <div className="flex justify-between py-3">
-                          <span className="text-gray-600">Tác giả:</span>
-                          <span className="font-semibold">{document.author}</span>
+
+                        {/* Right Column - Statistics */}
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-4">Thống kê</h4>
+                          <div className="space-y-3">
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Lượt xem:</span>
+                              <span className="font-semibold">{document.views}</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Lượt tải:</span>
+                              <span className="font-semibold">{document.downloads}</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Đánh giá:</span>
+                              <span className="font-semibold">{document.rating}/5</span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                              <span className="text-gray-600">Số lượng đánh giá:</span>
+                              <span className="font-semibold">{document.reviewCount}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -198,7 +245,68 @@ export default function DocumentDetailPage() {
                 <TabsContent value="reviews" className="mt-6">
                   <Card>
                     <CardContent className="p-6">
-                      <p className="text-gray-500 text-center py-8">Chưa có đánh giá nào</p>
+                      {/* Rating Summary */}
+                      <div className="mb-6 pb-6 border-b">
+                        <div className="flex items-center gap-2 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-5 h-5 ${
+                                i < Math.floor(document.rating)
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : i < document.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "fill-gray-200 text-gray-200"
+                              }`}
+                            />
+                          ))}
+                          <span className="text-xl font-bold text-gray-900 ml-2">{document.rating} trên 5</span>
+                        </div>
+                        <p className="text-sm text-gray-600">Dựa trên {document.reviewCount} đánh giá</p>
+                      </div>
+
+                      {/* Write Review Button */}
+                      <Button className="w-full mb-6 bg-blue-600 hover:bg-blue-700 text-white">
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Viết đánh giá
+                      </Button>
+
+                      {/* Reviews List */}
+                      <div className="space-y-6">
+                        {reviews.map((review) => (
+                          <div key={review.id} className="pb-6 border-b last:border-b-0">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <User className="w-5 h-5 text-gray-500" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h5 className="font-semibold text-gray-900">{review.author}</h5>
+                                  <div className="flex items-center gap-1">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={`w-4 h-4 ${
+                                          i < review.rating
+                                            ? "fill-yellow-400 text-yellow-400"
+                                            : "fill-gray-200 text-gray-200"
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                                <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
+                                <p className="text-xs text-gray-500">{review.date}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Load More Button */}
+                      <Button variant="outline" className="w-full mt-6 border-gray-300 hover:bg-gray-50 bg-transparent">
+                        Xem thêm đánh giá
+                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
