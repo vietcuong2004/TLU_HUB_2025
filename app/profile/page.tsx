@@ -36,6 +36,8 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -68,6 +70,32 @@ export default function ProfilePage() {
   const handleLogout = () => {
     logout()
     router.push("/")
+  }
+
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.')
+        return
+      }
+      
+      // Validate file type
+      if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+        alert('Định dạng file không hỗ trợ. Vui lòng chọn file JPG hoặc PNG.')
+        return
+      }
+      
+      setAvatarFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setAvatarPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+      // TODO: Upload file to server
+      console.log('Avatar file selected:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
+    }
   }
 
   return (
@@ -246,20 +274,25 @@ export default function ProfilePage() {
             </Card>
 
             {/* Account Settings */}
-            <Card className="md:col-span-2 lg:col-span-3">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-primary" />
-                  Cài đặt tài khoản
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 lg:grid-cols-[1fr,auto]">
-                  {/* Left Column - Form Fields */}
-                  <div className="space-y-6">
-                    {/* Personal Information Section */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Thông tin</h3>
+            <div className="md:col-span-2 lg:col-span-3 space-y-6">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Settings className="h-6 w-6 text-primary" />
+                Cài đặt tài khoản
+              </h2>
+              
+              {/* Main Layout Container - Force horizontal layout */}
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Left Side - Two components stacked vertically */}
+                <div className="flex-1 lg:flex-[2] space-y-6">
+                  {/* Component 1: Personal Information */}
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                        <div className="h-2 w-2 bg-primary rounded-full"></div>
+                        Thông tin
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="username">Tên người dùng</Label>
@@ -311,13 +344,18 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </CardContent>
+                  </Card>
 
-                    <Separator />
-
-                    {/* Email & Password Section */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Email tài khoản & Mật khẩu</h3>
+                  {/* Component 2: Email & Password */}
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                        <div className="h-2 w-2 bg-primary rounded-full"></div>
+                        Email tài khoản & Mật khẩu
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
@@ -383,29 +421,71 @@ export default function ProfilePage() {
 
                         <Button className="w-full bg-primary hover:bg-primary/90 text-white">CẬP NHẬT THÔNG TIN</Button>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column - Avatar (only visible on large screens) */}
-                  <div className="hidden lg:flex flex-col items-center justify-start pt-4">
-                    <Avatar className="h-32 w-32 border-4 border-primary/20">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} />
-                      <AvatarFallback className="text-4xl">{user.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <p className="mt-4 text-sm text-muted-foreground">Đổi Avatar</p>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                <Separator className="my-6" />
-
-                <div className="flex justify-center">
-                  <Button variant="destructive" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Đăng xuất
-                  </Button>
+                {/* Right Side - Avatar Component */}
+                <div className="w-full lg:w-96 lg:flex-shrink-0">
+                  <Card className="h-full shadow-sm flex flex-col">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg font-semibold text-center flex items-center justify-center gap-2">
+                        <div className="h-2 w-2 bg-primary rounded-full"></div>
+                        Hình ảnh đại diện
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-1 flex flex-col justify-center space-y-6">
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="relative group">
+                          <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary/40">
+                            <AvatarImage 
+                              src={avatarPreview || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="text-4xl bg-gradient-to-br from-primary/20 to-primary/10">
+                              {user.name[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          {avatarPreview && (
+                            <div className="absolute -top-2 -right-2 h-6 w-6 bg-green-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">✓</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="w-full space-y-3">
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/jpg"
+                            className="hidden"
+                            id="avatar-upload"
+                            onChange={handleAvatarChange}
+                          />
+                          <Button
+                            className="w-full bg-primary hover:bg-primary/90 text-white font-medium"
+                            onClick={() => document.getElementById('avatar-upload')?.click()}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Đổi Avatar
+                          </Button>
+                          <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                            Chọn ảnh từ máy tính<br />
+                            <span className="font-medium">(JPG, PNG tối đa 5MB)</span>
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              </div>              <Separator className="my-6" />
+
+              <div className="flex justify-center">
+                <Button variant="destructive" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Đăng xuất
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </main>
