@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Star, Clock, Users, BookOpen, CheckCircle2, PlayCircle } from "lucide-react"
-import { use } from "react"
 
 // Mock data - in real app, fetch from API
 const courseData = {
@@ -85,9 +84,8 @@ const courseData = {
   ],
 }
 
-export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const course = courseData // In real app: fetch based on id
+export default function CourseDetailPage({ params }: { params: { id: string } }) {
+  const course = courseData // In real app: fetch based on params.id
 
   return (
     <div className="flex min-h-screen flex-col">
