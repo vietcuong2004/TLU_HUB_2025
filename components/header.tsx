@@ -5,15 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { cn } from "@/lib/utils"
-import { useAuth } from "@/lib/auth-context"
-import { UserDropdown } from "@/components/user-dropdown"
+import { AuthButtons } from "@/components/auth-buttons"
+import { AuthButtonsSkeleton } from "@/components/auth-buttons-skeleton"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
-  const { user, isLoading } = useAuth()
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/"
@@ -99,20 +98,9 @@ export function Header() {
               <Input type="search" placeholder="Tìm kiếm..." className="w-64 pl-9" />
             </div>
             <div className="hidden items-center gap-2 md:flex">
-              {isLoading ? (
-                <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
-              ) : user ? (
-                <UserDropdown user={user} />
-              ) : (
-                <>
-                  <Button variant="ghost" asChild>
-                    <Link href="/login">Đăng Nhập</Link>
-                  </Button>
-                  <Button asChild className="shadow-sm">
-                    <Link href="/register">Đăng Ký</Link>
-                  </Button>
-                </>
-              )}
+              <Suspense fallback={<AuthButtonsSkeleton />}>
+                <AuthButtons />
+              </Suspense>
             </div>
             <Button
               variant="ghost"
@@ -175,22 +163,7 @@ export function Header() {
                 Liên Hệ
               </Link>
               <div className="flex flex-col gap-2 pt-4">
-                {isLoading ? (
-                  <div className="h-10 w-full animate-pulse rounded-md bg-gray-200" />
-                ) : user ? (
-                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                    <UserDropdown user={user} />
-                  </div>
-                ) : (
-                  <>
-                    <Button variant="outline" asChild className="w-full bg-transparent">
-                      <Link href="/login">Đăng Nhập</Link>
-                    </Button>
-                    <Button asChild className="w-full">
-                      <Link href="/register">Đăng Ký</Link>
-                    </Button>
-                  </>
-                )}
+                <AuthButtons />
               </div>
             </nav>
           </div>
