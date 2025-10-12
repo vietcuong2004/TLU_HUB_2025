@@ -17,13 +17,10 @@ export function CTASection() {
             </div>
           </div>
           <div className="flex gap-4">
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/register">Đăng Ký Ngay</Link>
-            </Button>
             <Button
               size="lg"
-              variant="outline"
-              className="border-white bg-white/10 text-white hover:bg-white/20"
+              variant="secondary"
+              className="border-white text-white hover:bg-white/90 hover:text-primary"
               asChild
             >
               <Link href="/courses">Khám Phá Khóa Học</Link>
