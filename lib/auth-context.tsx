@@ -18,7 +18,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 const DEMO_USER = {
-  email: "user1@gmail.com",
+  email: "user1@e.tlu.edu.vn",
   password: "123",
   name: "User1",
   image: "https://api.dicebear.com/7.x/avataaars/svg?seed=user1",

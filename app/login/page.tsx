@@ -49,7 +49,7 @@ export default function LoginPage() {
           <Card className="mx-auto max-w-md">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Đăng Nhập</CardTitle>
-              <CardDescription>Đăng nhập vào tài khoản TLU HUB của bạn</CardDescription>
+              <CardDescription>Đăng nhập vào TLU HUB bằng tài khoản sinh viên TLU</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -58,7 +58,7 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="user1@gmail.com"
+                    placeholder="user1@e.tlu.edu.vn"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
                 <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-600">
                   <p className="font-medium">Demo Account:</p>
-                  <p>Email: user1@gmail.com</p>
+                  <p>Email: user1@e.tlu.edu.vn</p>
                   <p>Password: 123</p>
                 </div>
                 <Button type="submit" disabled={isLoading} className="w-full" size="lg">
