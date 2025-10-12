@@ -7,10 +7,13 @@ import { Search, Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/auth-context"
+import { UserDropdown } from "@/components/user-dropdown"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { user, isLoading } = useAuth()
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/"
@@ -26,7 +29,7 @@ export function Header() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                 <span className="text-xl font-bold text-white">TLU</span>
               </div>
-              <span className="text-xl font-bold text-foreground">TLU HUB</span>
+              <span className="text-xl font-bold text-foreground">HUB</span>
             </div>
           </Link>
 
@@ -42,6 +45,17 @@ export function Header() {
               )}
             >
               Trang Chủ
+            </Link>
+            <Link
+              href="/resources"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/resources")
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
+            >
+              Tài Liệu
             </Link>
             <Link
               href="/courses"
@@ -66,17 +80,6 @@ export function Header() {
               Blog
             </Link>
             <Link
-              href="/resources"
-              className={cn(
-                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
-                isActive("/resources")
-                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
-                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
-              )}
-            >
-              Tài Liệu
-            </Link>
-            <Link
               href="/contact"
               className={cn(
                 "relative text-sm font-medium transition-colors hover:text-primary pb-1",
@@ -96,12 +99,20 @@ export function Header() {
               <Input type="search" placeholder="Tìm kiếm..." className="w-64 pl-9" />
             </div>
             <div className="hidden items-center gap-2 md:flex">
-              <Button variant="ghost" asChild>
-                <Link href="/login">Đăng Nhập</Link>
-              </Button>
-              <Button asChild className="shadow-sm">
-                <Link href="/register">Đăng Ký</Link>
-              </Button>
+              {isLoading ? (
+                <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+              ) : user ? (
+                <UserDropdown user={user} />
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <Link href="/login">Đăng Nhập</Link>
+                  </Button>
+                  <Button asChild className="shadow-sm">
+                    <Link href="/register">Đăng Ký</Link>
+                  </Button>
+                </>
+              )}
             </div>
             <Button
               variant="ghost"
@@ -128,6 +139,15 @@ export function Header() {
                 Trang Chủ
               </Link>
               <Link
+                href="/resources"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/resources") ? "text-primary font-semibold" : "text-foreground",
+                )}
+              >
+                Tài Liệu
+              </Link>
+              <Link
                 href="/courses"
                 className={cn(
                   "text-sm font-medium transition-colors hover:text-primary",
@@ -146,15 +166,6 @@ export function Header() {
                 Blog
               </Link>
               <Link
-                href="/resources"
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  isActive("/resources") ? "text-primary font-semibold" : "text-foreground",
-                )}
-              >
-                Tài Liệu
-              </Link>
-              <Link
                 href="/contact"
                 className={cn(
                   "text-sm font-medium transition-colors hover:text-primary",
@@ -164,12 +175,22 @@ export function Header() {
                 Liên Hệ
               </Link>
               <div className="flex flex-col gap-2 pt-4">
-                <Button variant="outline" asChild className="w-full bg-transparent">
-                  <Link href="/login">Đăng Nhập</Link>
-                </Button>
-                <Button asChild className="w-full">
-                  <Link href="/register">Đăng Ký</Link>
-                </Button>
+                {isLoading ? (
+                  <div className="h-10 w-full animate-pulse rounded-md bg-gray-200" />
+                ) : user ? (
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                    <UserDropdown user={user} />
+                  </div>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild className="w-full bg-transparent">
+                      <Link href="/login">Đăng Nhập</Link>
+                    </Button>
+                    <Button asChild className="w-full">
+                      <Link href="/register">Đăng Ký</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

@@ -5,20 +5,40 @@ import type React from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
+import { useAuth } from "@/lib/auth-context"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const { login } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login:", { email, password })
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const success = await login(email, password)
+
+      if (success) {
+        router.push("/")
+      } else {
+        setError("Email hoặc mật khẩu không đúng")
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      setError("Đã xảy ra lỗi khi đăng nhập")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -38,37 +58,40 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="email@tlu.edu.vn"
+                    placeholder="user1@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Mật khẩu</Label>
-                    <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                      Quên mật khẩu?
-                    </Link>
-                  </div>
+                  <Label htmlFor="password">Mật khẩu</Label>
                   <Input
                     id="password"
                     type="password"
+                    placeholder="••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Đăng Nhập
+                {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+                <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-600">
+                  <p className="font-medium">Demo Account:</p>
+                  <p>Email: user1@gmail.com</p>
+                  <p>Password: 123</p>
+                </div>
+                <Button type="submit" disabled={isLoading} className="w-full" size="lg">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Đang đăng nhập...
+                    </span>
+                  ) : (
+                    "Đăng nhập"
+                  )}
                 </Button>
               </form>
-              <div className="mt-4 text-center text-sm">
-                Chưa có tài khoản?{" "}
-                <Link href="/register" className="text-primary hover:underline">
-                  Đăng ký ngay
-                </Link>
-              </div>
             </CardContent>
           </Card>
         </div>
