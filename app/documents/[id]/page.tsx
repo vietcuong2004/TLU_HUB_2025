@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import DocumentActions from "@/components/document-actions"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -363,10 +364,7 @@ export default function DocumentDetailPage() {
                     <p className="text-sm text-gray-500">Giá đã bao gồm VAT</p>
                   </div>
 
-                  <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white mb-3 h-12">
-                    <Download className="w-5 h-5 mr-2" />
-                    Mua ngay
-                  </Button>
+                  <DocumentActions documentId={document.id} price={document.price} />
 
                   <Button
                     variant="outline"

@@ -29,6 +29,7 @@ import {
   EyeOff,
 } from "lucide-react"
 import { useEffect, useState } from "react"
+import { api } from "@/lib/api"
 
 export default function ProfilePage() {
   const { user, logout } = useAuth()
@@ -50,22 +51,57 @@ export default function ProfilePage() {
     return null
   }
 
-  // Mock data for demo
-  const profileData = {
+  // Profile state (loaded from API when available)
+  const [profileData, setProfileData] = useState<any>({
     isVIP: false,
     vipEndDate: null,
-    balance: 50000,
-    totalSpent: 150000,
-    purchasedDocs: [
-      { id: 1, title: "Giáo trình Lập trình C++", date: "15/01/2025", price: 50000 },
-      { id: 2, title: "Bài tập Cấu trúc dữ liệu", date: "10/01/2025", price: 30000 },
-      { id: 3, title: "Đề thi Toán cao cấp", date: "05/01/2025", price: 20000 },
-    ],
-    freeDocs: [
-      { id: 1, title: "Hướng dẫn sử dụng Git", date: "20/01/2025" },
-      { id: 2, title: "Tài liệu HTML/CSS cơ bản", date: "18/01/2025" },
-    ],
-  }
+    balance: 0,
+    totalSpent: 0,
+    purchasedDocs: [],
+    freeDocs: [],
+  })
+
+  useEffect(() => {
+    async function loadProfileDocs() {
+      try {
+        // Try to fetch purchased documents for the current user. If backend expects a numeric id,
+        // you can adapt this to pass the actual student id instead of email.
+        const resp = await api.getStudentDocuments(user.email)
+        // Expecting resp to contain fields like { purchasedDocs, freeDocs, balance, isVIP, vipEndDate, totalSpent }
+        if (resp) {
+          setProfileData({
+            isVIP: resp.isVIP ?? false,
+            vipEndDate: resp.vipEndDate ?? null,
+            balance: resp.balance ?? 0,
+            totalSpent: resp.totalSpent ?? 0,
+            purchasedDocs: resp.purchasedDocs ?? resp.documents ?? [],
+            freeDocs: resp.freeDocs ?? [],
+          })
+          return
+        }
+      } catch (err) {
+        // keep fallback empty or existing mock values
+        // eslint-disable-next-line no-console
+        console.warn("Failed loading profile documents from API", err)
+      }
+      // Fallback demo data (kept minimal)
+      setProfileData((prev: any) => ({
+        ...prev,
+        balance: 50000,
+        totalSpent: 150000,
+        purchasedDocs: [
+          { id: 1, title: "Giáo trình Lập trình C++", date: "15/01/2025", price: 50000 },
+          { id: 2, title: "Bài tập Cấu trúc dữ liệu", date: "10/01/2025", price: 30000 },
+          { id: 3, title: "Đề thi Toán cao cấp", date: "05/01/2025", price: 20000 },
+        ],
+        freeDocs: [
+          { id: 1, title: "Hướng dẫn sử dụng Git", date: "20/01/2025" },
+          { id: 2, title: "Tài liệu HTML/CSS cơ bản", date: "18/01/2025" },
+        ],
+      }))
+    }
+    void loadProfileDocs()
+  }, [user])
 
   const handleLogout = () => {
     logout()
