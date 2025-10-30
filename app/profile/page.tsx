@@ -39,19 +39,8 @@ export default function ProfilePage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-
-  useEffect(() => {
-    setMounted(true)
-    if (!user) {
-      router.push("/login")
-    }
-  }, [user, router])
-
-  if (!mounted || !user) {
-    return null
-  }
-
-  // Profile state (loaded from API when available)
+  
+  // Profile state (loaded from API when available) - MOVED BEFORE early return
   const [profileData, setProfileData] = useState<any>({
     isVIP: false,
     vipEndDate: null,
@@ -62,11 +51,21 @@ export default function ProfilePage() {
   })
 
   useEffect(() => {
+    setMounted(true)
+    if (!user) {
+      router.push("/login")
+    }
+  }, [user, router])
+
+  // Load profile data from API - MOVED BEFORE early return
+  useEffect(() => {
+    if (!user) return // Don't fetch if no user yet
+    
     async function loadProfileDocs() {
       try {
         // Try to fetch purchased documents for the current user. If backend expects a numeric id,
         // you can adapt this to pass the actual student id instead of email.
-        const resp = await api.getStudentDocuments(user.email)
+        const resp = await api.getStudentDocuments(user!.email)
         // Expecting resp to contain fields like { purchasedDocs, freeDocs, balance, isVIP, vipEndDate, totalSpent }
         if (resp) {
           setProfileData({
@@ -102,6 +101,10 @@ export default function ProfilePage() {
     }
     void loadProfileDocs()
   }, [user])
+
+  if (!mounted || !user) {
+    return null
+  }
 
   const handleLogout = () => {
     logout()
@@ -258,7 +261,7 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {profileData.purchasedDocs.map((doc) => (
+                  {profileData.purchasedDocs.map((doc: any) => (
                     <div
                       key={doc.id}
                       className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
@@ -299,7 +302,7 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {profileData.freeDocs.map((doc) => (
+                  {profileData.freeDocs.map((doc: any) => (
                     <div key={doc.id} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                       <p className="font-medium text-sm">{doc.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{doc.date}</p>
