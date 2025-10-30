@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
+  const [msv, setMsv] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
@@ -26,16 +26,21 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const success = await login(email, password)
+      // Log để debug
+      console.log("Attempting login with:", { msv, password })
+      
+      const success = await login(msv, password)
 
       if (success) {
+        console.log("Login successful, redirecting...")
         router.push("/")
       } else {
-        setError("Email hoặc mật khẩu không đúng")
+        console.error("Login failed: Invalid credentials")
+        setError("Mã sinh viên hoặc mật khẩu không đúng")
       }
     } catch (error) {
       console.error("Login error:", error)
-      setError("Đã xảy ra lỗi khi đăng nhập")
+      setError("Đã xảy ra lỗi khi đăng nhập: " + (error as Error).message)
     } finally {
       setIsLoading(false)
     }
@@ -54,13 +59,12 @@ export default function LoginPage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="msv">Mã sinh viên</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="user1@e.tlu.edu.vn"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="msv"
+                    placeholder="225106****"
+                    value={msv}
+                    onChange={(e) => setMsv(e.target.value)}
                     required
                   />
                 </div>
@@ -76,11 +80,7 @@ export default function LoginPage() {
                   />
                 </div>
                 {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
-                <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-600">
-                  <p className="font-medium">Demo Account:</p>
-                  <p>Email: user1@e.tlu.edu.vn</p>
-                  <p>Password: 123</p>
-                </div>
+                
                 <Button type="submit" disabled={isLoading} className="w-full" size="lg">
                   {isLoading ? (
                     <span className="flex items-center gap-2">

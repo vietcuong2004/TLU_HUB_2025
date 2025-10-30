@@ -1,10 +1,15 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Eye, Download } from "lucide-react"
+import { useEffect, useState } from "react"
+import { api } from "@/lib/api"
 
-const documents = [
+// FAKE DATA - Keep as fallback
+const MOCK_DOCUMENTS = [
   {
     id: 1,
     title: "Tuyển chọn những bài luận văn phát triển sản phẩm du lịch mang tính thực tiễn cao",
@@ -40,6 +45,46 @@ const documents = [
 ]
 
 export function FeaturedDocuments() {
+  const [documents, setDocuments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadFeaturedDocuments() {
+      setLoading(true)
+      try {
+        // Try to fetch featured/recent documents
+        // If API doesn't have a "featured" endpoint, use search with empty keyword or a specific tag
+        const docs = await api.searchDocuments("")
+        if (docs && Array.isArray(docs)) {
+          setDocuments(docs.slice(0, 4)) // Take first 4 as featured
+        } else if (docs && docs.results) {
+          setDocuments(docs.results.slice(0, 4))
+        } else {
+          setDocuments(MOCK_DOCUMENTS)
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn("Failed to load featured documents, using fallback", err)
+        setDocuments(MOCK_DOCUMENTS)
+      } finally {
+        setLoading(false)
+      }
+    }
+    void loadFeaturedDocuments()
+  }, [])
+
+  if (loading) {
+    return (
+      <section className="py-16 lg:py-24 px-4 bg-gradient-to-b from-white to-blue-50/30">
+        <div className="container mx-auto max-w-7xl">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="py-16 lg:py-24 px-4 bg-gradient-to-b from-white to-blue-50/30">
       <div className="container mx-auto max-w-7xl">
@@ -58,7 +103,7 @@ export function FeaturedDocuments() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {documents.map((doc) => (
+          {documents.map((doc: any) => (
             <Link key={doc.id} href={`/documents/${doc.id}`}>
               <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 h-full">
                 <CardContent className="p-0">

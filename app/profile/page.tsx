@@ -65,7 +65,7 @@ export default function ProfilePage() {
       try {
         // Try to fetch purchased documents for the current user. If backend expects a numeric id,
         // you can adapt this to pass the actual student id instead of email.
-        const resp = await api.getStudentDocuments(user!.email)
+        const resp = await api.getStudentDocuments(user!.studentId ?? user!.email)
         // Expecting resp to contain fields like { purchasedDocs, freeDocs, balance, isVIP, vipEndDate, totalSpent }
         if (resp) {
           setProfileData({

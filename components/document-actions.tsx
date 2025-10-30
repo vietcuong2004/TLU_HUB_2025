@@ -19,7 +19,7 @@ export default function DocumentActions({ documentId, price }: { documentId: str
     try {
       const payload = {
         documentId,
-        studentId: user.email, // adapt if backend expects numeric id
+        studentId: user.studentId ?? user.email, // Use studentId if available
       }
       const resp = await api.purchaseDocument(payload)
       // resp handling depends on backend - show success message or redirect to download link
