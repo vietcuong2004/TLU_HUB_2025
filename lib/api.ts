@@ -124,7 +124,8 @@ export const api = {
 
   // Student
   getStudentDocuments: async (studentId: string) => {
-    return apiFetch(`/api/Student/${encodeURIComponent(studentId)}/documents`, { method: "GET" })
+    console.log("📚 Calling getStudentDocuments with studentId:", studentId)
+    return apiFetch(`/api/Student/ViewDocuments/${encodeURIComponent(studentId)}`, { method: "GET" })
   },
   upgradeVip: async (studentId: string, payload: any) => {
     return apiFetch(`/api/Student/${encodeURIComponent(studentId)}/upgrade-vip`, { method: "PUT", body: JSON.stringify(payload) })
