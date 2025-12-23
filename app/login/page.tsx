@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [msv, setMsv] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
@@ -26,21 +26,16 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Log để debug
-      console.log("Attempting login with:", { msv, password })
-      
-      const success = await login(msv, password)
+      const success = await login(email, password)
 
       if (success) {
-        console.log("Login successful, redirecting...")
         router.push("/")
       } else {
-        console.error("Login failed: Invalid credentials")
-        setError("Mã sinh viên hoặc mật khẩu không đúng")
+        setError("Email hoặc mật khẩu không đúng")
       }
     } catch (error) {
       console.error("Login error:", error)
-      setError("Đã xảy ra lỗi khi đăng nhập: " + (error as Error).message)
+      setError("Đã xảy ra lỗi khi đăng nhập")
     } finally {
       setIsLoading(false)
     }
@@ -54,17 +49,18 @@ export default function LoginPage() {
           <Card className="mx-auto max-w-md">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Đăng Nhập</CardTitle>
-              <CardDescription>Đăng nhập vào TLU HUB bằng tài khoản sinh viên TLU</CardDescription>
+              <CardDescription>Đăng nhập vào tài khoản TLU HUB của bạn</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="msv">Mã sinh viên</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="msv"
-                    placeholder="225106****"
-                    value={msv}
-                    onChange={(e) => setMsv(e.target.value)}
+                    id="email"
+                    type="email"
+                    placeholder="user1@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -80,7 +76,11 @@ export default function LoginPage() {
                   />
                 </div>
                 {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
-                
+                <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-600">
+                  <p className="font-medium">Demo Account:</p>
+                  <p>Email: user1@gmail.com</p>
+                  <p>Password: 123</p>
+                </div>
                 <Button type="submit" disabled={isLoading} className="w-full" size="lg">
                   {isLoading ? (
                     <span className="flex items-center gap-2">

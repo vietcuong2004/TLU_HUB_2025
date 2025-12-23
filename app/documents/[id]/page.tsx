@@ -1,21 +1,15 @@
-"use client"
-
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import DocumentActions from "@/components/document-actions"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Download, Share2, Eye, DownloadIcon, Calendar, User, Star, Heart, MessageSquare } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams } from "next/navigation"
-import { useEffect, useState } from "react"
-import { api } from "@/lib/api"
 
-// FAKE DATA - Keep as fallback when API fails
-const MOCK_DOCUMENT = {
+// Mock data - in real app, fetch based on id
+const document = {
   id: 1,
   title: "Tuyển chọn những bài luận văn phát triển sản phẩm du lịch mang tính thực tiễn cao",
   description:
@@ -39,7 +33,7 @@ const MOCK_DOCUMENT = {
   thumbnail: "/doc-tourism-thesis.jpg",
 }
 
-const MOCK_REVIEWS = [
+const reviews = [
   {
     id: 1,
     author: "Nguyễn Văn B",
@@ -57,7 +51,7 @@ const MOCK_REVIEWS = [
   },
 ]
 
-const MOCK_RELATED = [
+const relatedDocuments = [
   {
     id: 2,
     title: "Hướng dẫn làm đồ án hệ thống cung cấp điện cho xưởng cơ khí MỚI NHẤT",
@@ -85,69 +79,6 @@ const MOCK_RELATED = [
 ]
 
 export default function DocumentDetailPage() {
-  const params = useParams()
-  const documentId = params.id as string
-  
-  const [document, setDocument] = useState<any>(null)
-  const [reviews, setReviews] = useState<any[]>([])
-  const [relatedDocuments, setRelatedDocuments] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function loadDocument() {
-      setLoading(true)
-      try {
-        // Fetch document by ID from API
-        const docData = await api.getDocumentById(documentId)
-        if (docData) {
-          setDocument(docData)
-          // TODO: Fetch reviews and related documents from API when available
-          setReviews(MOCK_REVIEWS)
-          setRelatedDocuments(MOCK_RELATED)
-        }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn("Failed to load document from API, using fallback", err)
-        // Fallback to mock data
-        setDocument(MOCK_DOCUMENT)
-        setReviews(MOCK_REVIEWS)
-        setRelatedDocuments(MOCK_RELATED)
-      } finally {
-        setLoading(false)
-      }
-    }
-    void loadDocument()
-  }, [documentId])
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1 bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải tài liệu...</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
-
-  if (!document) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1 bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600 text-xl">Không tìm thấy tài liệu</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    )
-  }
-
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -246,7 +177,7 @@ export default function DocumentDetailPage() {
                         cứu trong lĩnh vực phát triển du lịch bền vững. Nội dung bao gồm:
                       </p>
                       <ul className="space-y-2">
-                        {document.features?.map((feature: any, index: number) => (
+                        {document.features.map((feature, index) => (
                           <li key={index} className="flex items-start gap-2 text-gray-700">
                             <span className="text-blue-600 mt-1">•</span>
                             <span>{feature}</span>
@@ -432,7 +363,10 @@ export default function DocumentDetailPage() {
                     <p className="text-sm text-gray-500">Giá đã bao gồm VAT</p>
                   </div>
 
-                  <DocumentActions documentId={document.id} price={document.price} />
+                  <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white mb-3 h-12">
+                    <Download className="w-5 h-5 mr-2" />
+                    Mua ngay
+                  </Button>
 
                   <Button
                     variant="outline"

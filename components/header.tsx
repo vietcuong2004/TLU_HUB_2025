@@ -1,19 +1,19 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useState, Suspense } from "react"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { AuthButtons } from "@/components/auth-buttons"
-import { AuthButtonsSkeleton } from "@/components/auth-buttons-skeleton"
+import { useAuth } from "@/lib/auth-context"
+import { UserDropdown } from "@/components/user-dropdown"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { user, isLoading } = useAuth()
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/"
@@ -21,67 +21,74 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-red-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-sm">
-      <div className="container mx-auto px-4 max-w-[1200px]">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-12 flex items-center justify-center">
-              <Image 
-                src="/logo.png" 
-                alt="TLU Hub Logo" 
-                width={120} 
-                height={48} 
-                className="object-contain"
-                priority
-              />
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                <span className="text-xl font-bold text-white">TLU</span>
+              </div>
+              <span className="text-xl font-bold text-foreground">TLU HUB</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-6 md:flex">
             <Link
               href="/"
               className={cn(
-                "text-sm font-bold transition-colors",
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
                 isActive("/") && pathname === "/"
-                  ? "text-primary"
-                  : "text-foreground hover:text-primary",
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
               )}
             >
-              Trang chủ
+              Trang Chủ
             </Link>
             <Link
               href="/resources"
               className={cn(
-                "text-sm font-medium transition-colors",
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
                 isActive("/resources")
-                  ? "text-primary"
-                  : "text-foreground hover:text-primary",
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
               )}
             >
-              Tài liệu
+              Tài Liệu
             </Link>
             <Link
               href="/courses"
               className={cn(
-                "text-sm font-medium transition-colors",
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
                 isActive("/courses")
-                  ? "text-primary"
-                  : "text-foreground hover:text-primary",
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
               )}
             >
-              Đăng tải
+              Khóa Học
+            </Link>
+            <Link
+              href="/blog"
+              className={cn(
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
+                isActive("/blog")
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
+              )}
+            >
+              Blog
             </Link>
             <Link
               href="/contact"
               className={cn(
-                "text-sm font-medium transition-colors",
+                "relative text-sm font-medium transition-colors hover:text-primary pb-1",
                 isActive("/contact")
-                  ? "text-primary"
-                  : "text-foreground hover:text-primary",
+                  ? "text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary"
+                  : "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary after:scale-x-0 hover:after:scale-x-100 after:transition-transform",
               )}
             >
-              Giới thiệu
+              Liên Hệ
             </Link>
           </nav>
 
@@ -92,9 +99,20 @@ export function Header() {
               <Input type="search" placeholder="Tìm kiếm..." className="w-64 pl-9" />
             </div>
             <div className="hidden items-center gap-2 md:flex">
-              <Suspense fallback={<AuthButtonsSkeleton />}>
-                <AuthButtons />
-              </Suspense>
+              {isLoading ? (
+                <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+              ) : user ? (
+                <UserDropdown user={user} />
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <Link href="/login">Đăng Nhập</Link>
+                  </Button>
+                  <Button asChild className="shadow-sm">
+                    <Link href="/register">Đăng Ký</Link>
+                  </Button>
+                </>
+              )}
             </div>
             <Button
               variant="ghost"
@@ -157,7 +175,22 @@ export function Header() {
                 Liên Hệ
               </Link>
               <div className="flex flex-col gap-2 pt-4">
-                <AuthButtons />
+                {isLoading ? (
+                  <div className="h-10 w-full animate-pulse rounded-md bg-gray-200" />
+                ) : user ? (
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                    <UserDropdown user={user} />
+                  </div>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild className="w-full bg-transparent">
+                      <Link href="/login">Đăng Nhập</Link>
+                    </Button>
+                    <Button asChild className="w-full">
+                      <Link href="/register">Đăng Ký</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

@@ -29,27 +29,13 @@ import {
   EyeOff,
 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { api } from "@/lib/api"
 
 export default function ProfilePage() {
   const { user, logout } = useAuth()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  
-  // Profile state (loaded from API when available) - MOVED BEFORE early return
-  const [profileData, setProfileData] = useState<any>({
-    isVIP: false,
-    vipEndDate: null,
-    balance: 0,
-    totalSpent: 0,
-    purchasedDocs: [],
-    freeDocs: [],
-  })
 
   useEffect(() => {
     setMounted(true)
@@ -58,97 +44,30 @@ export default function ProfilePage() {
     }
   }, [user, router])
 
-  // Load profile data from API - MOVED BEFORE early return
-  useEffect(() => {
-    if (!user) return // Don't fetch if no user yet
-    
-    async function loadProfileDocs() {
-      setLoading(true)
-      try {
-        // Fetch purchased documents for the current user
-        const studentIdToUse = user!.studentId ?? user!.email
-        console.log("👤 Current user:", user)
-        console.log("🔑 Student ID to use:", studentIdToUse)
-        
-        const resp = await api.getStudentDocuments(studentIdToUse)
-        console.log("📚 Student documents response:", resp)
-        
-        if (resp) {
-          // Map API response to our state format
-          // Response format: { documentID, title, description, type, price, accessLevel, storageLink, uploadDate, subject, tags, viewsCount }
-          const documents = Array.isArray(resp) ? resp : (resp.documents || resp.data || [])
-          
-          setProfileData({
-            isVIP: resp.isVIP ?? false,
-            vipEndDate: resp.vipEndDate ?? null,
-            balance: resp.balance ?? 0,
-            totalSpent: resp.totalSpent ?? 0,
-            purchasedDocs: documents.map((doc: any) => ({
-              id: doc.documentID || doc.id,
-              title: doc.title || "Tài liệu",
-              description: doc.description || "",
-              date: doc.uploadDate ? new Date(doc.uploadDate).toLocaleDateString("vi-VN") : new Date().toLocaleDateString("vi-VN"),
-              price: doc.price || 0,
-              subject: doc.subject || "",
-              type: doc.type, // 0 = free, 1 = paid (assumption)
-              accessLevel: doc.accessLevel, // 0 = public, 1 = premium, etc.
-              viewsCount: doc.viewsCount || 0,
-              storageLink: doc.storageLink || "",
-            })),
-            freeDocs: [], // Free docs would come from a different endpoint or filter
-          })
-          setLoading(false)
-          return
-        }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn("⚠️ Failed loading profile documents from API", err)
-      }
-      
-      setLoading(false)
-      // Fallback: empty state instead of mock data (shows user has no purchased documents yet)
-      setProfileData((prev: any) => ({
-        ...prev,
-        purchasedDocs: [],
-        freeDocs: [],
-      }))
-    }
-    void loadProfileDocs()
-  }, [user])
-
   if (!mounted || !user) {
     return null
+  }
+
+  // Mock data for demo
+  const profileData = {
+    isVIP: false,
+    vipEndDate: null,
+    balance: 50000,
+    totalSpent: 150000,
+    purchasedDocs: [
+      { id: 1, title: "Giáo trình Lập trình C++", date: "15/01/2025", price: 50000 },
+      { id: 2, title: "Bài tập Cấu trúc dữ liệu", date: "10/01/2025", price: 30000 },
+      { id: 3, title: "Đề thi Toán cao cấp", date: "05/01/2025", price: 20000 },
+    ],
+    freeDocs: [
+      { id: 1, title: "Hướng dẫn sử dụng Git", date: "20/01/2025" },
+      { id: 2, title: "Tài liệu HTML/CSS cơ bản", date: "18/01/2025" },
+    ],
   }
 
   const handleLogout = () => {
     logout()
     router.push("/")
-  }
-
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.')
-        return
-      }
-      
-      // Validate file type
-      if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
-        alert('Định dạng file không hỗ trợ. Vui lòng chọn file JPG hoặc PNG.')
-        return
-      }
-      
-      setAvatarFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setAvatarPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-      // TODO: Upload file to server
-      console.log('Avatar file selected:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
-    }
   }
 
   return (
@@ -271,88 +190,38 @@ export default function ProfilePage() {
                   <BookOpen className="h-5 w-5 text-primary" />
                   Tài liệu đã mua
                 </CardTitle>
-                <CardDescription>Danh sách tài liệu bạn đã mua từ TLU Hub</CardDescription>
+                <CardDescription>Danh sách tài liệu bạn đã mua gần đây</CardDescription>
               </CardHeader>
               <CardContent>
-                {loading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <span className="ml-3 text-muted-foreground">Đang tải...</span>
-                  </div>
-                ) : profileData.purchasedDocs.length === 0 ? (
-                  <div className="text-center py-8">
-                    <BookOpen className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">Bạn chưa mua tài liệu nào</p>
-                    <Button className="mt-4" variant="outline" onClick={() => router.push("/resources")}>
-                      Khám phá tài liệu
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {profileData.purchasedDocs.map((doc: any) => (
-                      <div
-                        key={doc.id}
-                        className="p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-                        onClick={() => router.push(`/documents/${doc.id}`)}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          {/* Left side - Icon and Info */}
-                          <div className="flex gap-3 flex-1 min-w-0">
-                            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                              <FileText className="h-6 w-6 text-primary" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-base mb-1 truncate">{doc.title}</h4>
-                              {doc.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                                  {doc.description}
-                                </p>
-                              )}
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                                {doc.subject && (
-                                  <span className="flex items-center gap-1">
-                                    <BookOpen className="h-3 w-3" />
-                                    {doc.subject}
-                                  </span>
-                                )}
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="h-3 w-3" />
-                                  {doc.date}
-                                </span>
-                                {doc.viewsCount > 0 && (
-                                  <span className="flex items-center gap-1">
-                                    <Eye className="h-3 w-3" />
-                                    {doc.viewsCount} lượt xem
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Right side - Price and Download */}
-                          <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                            <Badge variant="secondary" className="text-sm font-semibold">
-                              {doc.price.toLocaleString("vi-VN")} đ
-                            </Badge>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="w-full"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                // TODO: Implement download with api.getDocumentAccess()
-                                console.log("Download document:", doc.id, doc.storageLink)
-                              }}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              Tải xuống
-                            </Button>
-                          </div>
+                <div className="space-y-3">
+                  {profileData.purchasedDocs.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center">
+                          <FileText className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{doc.title}</p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {doc.date}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-semibold text-primary">
+                          {doc.price.toLocaleString("vi-VN")} đ
+                        </span>
+                        <Button size="sm" variant="outline">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
@@ -366,7 +235,7 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {profileData.freeDocs.map((doc: any) => (
+                  {profileData.freeDocs.map((doc) => (
                     <div key={doc.id} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                       <p className="font-medium text-sm">{doc.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{doc.date}</p>
@@ -377,25 +246,20 @@ export default function ProfilePage() {
             </Card>
 
             {/* Account Settings */}
-            <div className="md:col-span-2 lg:col-span-3 space-y-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Settings className="h-6 w-6 text-primary" />
-                Cài đặt tài khoản
-              </h2>
-              
-              {/* Main Layout Container - Force horizontal layout */}
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Left Side - Two components stacked vertically */}
-                <div className="flex-1 lg:flex-[2] space-y-6">
-                  {/* Component 1: Personal Information */}
-                  <Card className="shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                        <div className="h-2 w-2 bg-primary rounded-full"></div>
-                        Thông tin
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+            <Card className="md:col-span-2 lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-primary" />
+                  Cài đặt tài khoản
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 lg:grid-cols-[1fr,auto]">
+                  {/* Left Column - Form Fields */}
+                  <div className="space-y-6">
+                    {/* Personal Information Section */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Thông tin</h3>
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="username">Tên người dùng</Label>
@@ -447,18 +311,13 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
 
-                  {/* Component 2: Email & Password */}
-                  <Card className="shadow-sm">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                        <div className="h-2 w-2 bg-primary rounded-full"></div>
-                        Email tài khoản & Mật khẩu
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                    <Separator />
+
+                    {/* Email & Password Section */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Email tài khoản & Mật khẩu</h3>
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
@@ -524,71 +383,29 @@ export default function ProfilePage() {
 
                         <Button className="w-full bg-primary hover:bg-primary/90 text-white">CẬP NHẬT THÔNG TIN</Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Avatar (only visible on large screens) */}
+                  <div className="hidden lg:flex flex-col items-center justify-start pt-4">
+                    <Avatar className="h-32 w-32 border-4 border-primary/20">
+                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} />
+                      <AvatarFallback className="text-4xl">{user.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <p className="mt-4 text-sm text-muted-foreground">Đổi Avatar</p>
+                  </div>
                 </div>
 
-                {/* Right Side - Avatar Component */}
-                <div className="w-full lg:w-96 lg:flex-shrink-0">
-                  <Card className="h-full shadow-sm flex flex-col">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-lg font-semibold text-center flex items-center justify-center gap-2">
-                        <div className="h-2 w-2 bg-primary rounded-full"></div>
-                        Hình ảnh đại diện
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col justify-center space-y-6">
-                      <div className="flex flex-col items-center space-y-4">
-                        <div className="relative group">
-                          <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary/40">
-                            <AvatarImage 
-                              src={avatarPreview || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
-                              className="object-cover"
-                            />
-                            <AvatarFallback className="text-4xl bg-gradient-to-br from-primary/20 to-primary/10">
-                              {user.name[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          {avatarPreview && (
-                            <div className="absolute -top-2 -right-2 h-6 w-6 bg-green-500 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs">✓</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="w-full space-y-3">
-                          <input
-                            type="file"
-                            accept="image/jpeg,image/png,image/jpg"
-                            className="hidden"
-                            id="avatar-upload"
-                            onChange={handleAvatarChange}
-                          />
-                          <Button
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-medium"
-                            onClick={() => document.getElementById('avatar-upload')?.click()}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Đổi Avatar
-                          </Button>
-                          <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                            Chọn ảnh từ máy tính<br />
-                            <span className="font-medium">(JPG, PNG tối đa 5MB)</span>
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>              <Separator className="my-6" />
+                <Separator className="my-6" />
 
-              <div className="flex justify-center">
-                <Button variant="destructive" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Đăng xuất
-                </Button>
-              </div>
-            </div>
+                <div className="flex justify-center">
+                  <Button variant="destructive" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Đăng xuất
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
